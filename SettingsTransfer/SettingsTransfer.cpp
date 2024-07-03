@@ -9,15 +9,27 @@ static void activate (GtkApplication *app, gpointer user_data){
     GtkWidget *window;
     GtkWidget *button;
 
+    int screenWidth = GetSystemMetrics(SM_CXSCREEN) / sqrt(2);
+    int screenHeight = GetSystemMetrics(SM_CYSCREEN) / sqrt(2);
+    
+    int buttonWidth = screenWidth / 10;
+    int buttonHeight = screenHeight / 10;
+
+    int buttonX = screenWidth * .6;
+    int buttonY = screenHeight * .6;
+
     window = gtk_application_window_new (app);
-    gtk_window_set_title (GTK_WINDOW (window), "Settings Transfer");
-    gtk_window_set_default_size (GTK_WINDOW (window), 200, 200);
+    gtk_window_set_title(GTK_WINDOW(window), "Settings Transfer");
+    gtk_window_set_default_size( GTK_WINDOW(window), screenWidth, screenHeight);    
 
-    button = gtk_button_new_with_label ("Hello Bitch");
+    button = gtk_button_new_with_label("Hello Bitch");
+    
     g_signal_connect(button, "clicked", G_CALLBACK (print_hello), NULL);
-    gtk_window_set_child (GTK_WINDOW (window), button);
+    gtk_window_set_child(GTK_WINDOW(window), button);
 
-    gtk_window_present (GTK_WINDOW (window));
+    gtk_window_present(GTK_WINDOW(window));
+    
+    
 }
 
 int main (int argc, char **argv){
@@ -27,7 +39,7 @@ int main (int argc, char **argv){
     app = gtk_application_new ("org.gtk.example", G_APPLICATION_DEFAULT_FLAGS);
     g_signal_connect(app, "activate", G_CALLBACK (activate), NULL);
     status = g_application_run (G_APPLICATION (app), argc, argv);
-    g_object_unref (app);
+    g_object_unref(app);
 
     return status;
 }
