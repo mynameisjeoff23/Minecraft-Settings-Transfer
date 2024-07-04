@@ -5,9 +5,30 @@ static void print_hello(GtkWidget *widget, gpointer data){
     g_print("Hello World\n");
 }
 
-static void activate (GtkApplication *app, gpointer user_data){
+void update_button_size(GtkWidget *button, GdkRectangle *allocation, gpointer data){
+    int windowWidth = allocation->width;
+    int windowHeight = allocation->height;
+
+    int buttonWidth = windowWidth / 10;
+    int buttonHeight = windowHeight / 10; 
+
+    gtk_widget_set_size_request(button, buttonWidth, buttonHeight);
+}
+
+void updateButtonPlacement(GtkWidget *button, GtkWidget *fixed, GdkRectangle *allocation, gpointer data){
+    int windowWidth = allocation->width; 
+    int windowHeight = allocation->height;
+
+    int buttonX = windowWidth * .6;
+    int buttonY = windowHeight * .5;
+
+    gtk_fixed_put(GTK_FIXED(fixed), button, buttonX, buttonY);
+}
+
+static void activate(GtkApplication *app, gpointer user_data){
     GtkWidget *window;
     GtkWidget *button;
+    GtkWidget *fixed;
 
     int screenWidth = GetSystemMetrics(SM_CXSCREEN) / sqrt(2);
     int screenHeight = GetSystemMetrics(SM_CYSCREEN) / sqrt(2);
@@ -15,22 +36,30 @@ static void activate (GtkApplication *app, gpointer user_data){
     int buttonWidth = screenWidth / 10;
     int buttonHeight = screenHeight / 10;
 
-    int buttonX = screenWidth * .6;
-    int buttonY = screenHeight * .6;
+    double buttonX = screenWidth * .6;
+    double buttonY = screenHeight * .6;
 
-    window = gtk_application_window_new (app);
-    gtk_window_set_title(GTK_WINDOW(window), "Settings Transfer");
-    gtk_window_set_default_size( GTK_WINDOW(window), screenWidth, screenHeight);    
+    window = gtk_application_window_new(app);
+    gtk_window_set_title(GTK_WINDOW(window), "MC Settings Transfer");
+    gtk_window_set_default_size( GTK_WINDOW(window), screenWidth, screenHeight);
+    
+
+    fixed = gtk_fixed_new();
+    gtk_window_set_child(GTK_WINDOW(window), fixed);
 
     button = gtk_button_new_with_label("Hello Bitch");
+    gtk_fixed_put(GTK_FIXED(fixed), button, buttonX, buttonY);
+    gtk_widget_set_size_request(button, buttonWidth, buttonHeight);    
     
-    g_signal_connect(button, "clicked", G_CALLBACK (print_hello), NULL);
-    gtk_window_set_child(GTK_WINDOW(window), button);
+    
+    g_signal_connect(button, "clicked", G_CALLBACK(print_hello), NULL);
 
-    gtk_window_present(GTK_WINDOW(window));
-    
-    
+    gtk_window_present(GTK_WINDOW(window));  
+    g_signal_connect(window, "state-flags-changed", G_CALLBACK(update_button_size), NULL); //currently makes the app crash i believe
+    g_signal_connect(window, "state-flags-changed", G_CALLBACK(updateButtonPlacement), NULL);//probably also makes it crash
 }
+
+
 
 int main (int argc, char **argv){
     GtkApplication *app;
@@ -38,6 +67,7 @@ int main (int argc, char **argv){
 
     app = gtk_application_new ("org.gtk.example", G_APPLICATION_DEFAULT_FLAGS);
     g_signal_connect(app, "activate", G_CALLBACK (activate), NULL);
+
     status = g_application_run (G_APPLICATION (app), argc, argv);
     g_object_unref(app);
 
