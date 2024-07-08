@@ -5,6 +5,7 @@ static void print_hello(GtkWidget *widget, gpointer data){
     g_print("Hello World\n");
 }
 
+/* there will be no button updating until I figure out a way to detect a resize that doesn't crash the program
 void update_button_size(GtkWidget *button, GdkRectangle *allocation, gpointer data){
     int windowWidth = allocation->width;
     int windowHeight = allocation->height;
@@ -23,8 +24,7 @@ void updateButtonPlacement(GtkWidget *button, GtkWidget *fixed, GdkRectangle *al
     int buttonY = windowHeight * .5;
 
     gtk_fixed_put(GTK_FIXED(fixed), button, buttonX, buttonY);
-}
-
+} */
 static void activate(GtkApplication *app, gpointer user_data){
     GtkWidget *window;
     GtkWidget *button;
@@ -36,8 +36,8 @@ static void activate(GtkApplication *app, gpointer user_data){
     int buttonWidth = screenWidth / 10;
     int buttonHeight = screenHeight / 10;
 
-    double buttonX = screenWidth * .6;
-    double buttonY = screenHeight * .6;
+    double buttonX = screenWidth * .5 - .5 * buttonWidth;
+    double buttonY = screenHeight * .6 - .5 * buttonHeight;
 
     window = gtk_application_window_new(app);
     gtk_window_set_title(GTK_WINDOW(window), "MC Settings Transfer");
@@ -54,9 +54,13 @@ static void activate(GtkApplication *app, gpointer user_data){
     
     g_signal_connect(button, "clicked", G_CALLBACK(print_hello), NULL);
 
-    gtk_window_present(GTK_WINDOW(window));  
-    g_signal_connect(window, "state-flags-changed", G_CALLBACK(update_button_size), NULL); //currently makes the app crash i believe
-    g_signal_connect(window, "state-flags-changed", G_CALLBACK(updateButtonPlacement), NULL);//probably also makes it crash
+    gtk_window_present(GTK_WINDOW(window));
+/*causes program to crash, won't be implemented yet, or maybe ever
+
+    g_signal_connect(G_OBJECT(window), "notify::default-width", G_CALLBACK(updateButtonPlacement), NULL);    
+    g_signal_connect(G_OBJECT(window), "notify::default-height", G_CALLBACK(updateButtonPlacement), NULL);
+    g_signal_connect(G_OBJECT(window), "notify::default-width", G_CALLBACK(update_button_size), NULL);    
+    g_signal_connect(G_OBJECT(window), "notify::default-height", G_CALLBACK(update_button_size), NULL); */  
 }
 
 
