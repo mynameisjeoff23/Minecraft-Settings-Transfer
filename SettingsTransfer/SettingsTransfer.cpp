@@ -55,6 +55,7 @@ static void activate(GtkApplication *app, gpointer user_data){
     g_signal_connect(button, "clicked", G_CALLBACK(print_hello), NULL);
 
     gtk_window_present(GTK_WINDOW(window));
+    
 /*causes program to crash, won't be implemented yet, or maybe ever
 
     g_signal_connect(G_OBJECT(window), "notify::default-width", G_CALLBACK(updateButtonPlacement), NULL);    
@@ -62,7 +63,6 @@ static void activate(GtkApplication *app, gpointer user_data){
     g_signal_connect(G_OBJECT(window), "notify::default-width", G_CALLBACK(update_button_size), NULL);    
     g_signal_connect(G_OBJECT(window), "notify::default-height", G_CALLBACK(update_button_size), NULL); */  
 }
-
 
 
 int main (int argc, char **argv){
