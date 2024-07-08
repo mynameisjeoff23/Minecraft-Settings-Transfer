@@ -1,11 +1,54 @@
 #include <gtk/gtk.h>
 #include <windows.h>
-//making some changes to test git
-static void print_hello(GtkWidget *widget, gpointer data){
+#include <string>
+
+int counter{1};
+struct File1 {
+    std::string selected_file1;
+};
+
+struct File2 {
+    std::string selected_file2;
+};
+
+void open_file_dialog(GObject* source_object, GAsyncResult *res, gpointer user_data) {
+    g_print("file successfully selected\n");
+    if(::counter == 1) {
+        File1* data = static_cast<File1*>(user_data);
+        g_print("File1: %s\n", data);
+    }
+    
+}
+
+static void onButtonPress(GtkWidget *widget, gpointer user_data){
+    //static std::string file1;
+    //static std::string file2;
+
+    GtkWindow* window = GTK_WINDOW(user_data);
+    GtkFileDialog* dialog = gtk_file_dialog_new();
+    
+
     g_print("Hello World\n");
+
+    if(::counter == 1) {
+        g_print("option 1");
+        gtk_file_dialog_open(dialog, window, NULL, open_file_dialog, user_data);
+    }
+
+    if(::counter == 2) {
+
+    }
+
+    if(::counter == 3) {
+
+    }
+
+    
+    ::counter++;
 }
 
 /* there will be no button updating until I figure out a way to detect a resize that doesn't crash the program
+
 void update_button_size(GtkWidget *button, GdkRectangle *allocation, gpointer data){
     int windowWidth = allocation->width;
     int windowHeight = allocation->height;
@@ -36,13 +79,12 @@ static void activate(GtkApplication *app, gpointer user_data){
     int buttonWidth = screenWidth / 10;
     int buttonHeight = screenHeight / 10;
 
-    double buttonX = screenWidth * .5 - .5 * buttonWidth;
-    double buttonY = screenHeight * .6 - .5 * buttonHeight;
+    double buttonX = (screenWidth * .5) - (.5 * buttonWidth);
+    double buttonY = (screenHeight * .6) - (.5 * buttonHeight);
 
     window = gtk_application_window_new(app);
     gtk_window_set_title(GTK_WINDOW(window), "MC Settings Transfer");
     gtk_window_set_default_size( GTK_WINDOW(window), screenWidth, screenHeight);
-    
 
     fixed = gtk_fixed_new();
     gtk_window_set_child(GTK_WINDOW(window), fixed);
@@ -51,8 +93,7 @@ static void activate(GtkApplication *app, gpointer user_data){
     gtk_fixed_put(GTK_FIXED(fixed), button, buttonX, buttonY);
     gtk_widget_set_size_request(button, buttonWidth, buttonHeight);    
     
-    
-    g_signal_connect(button, "clicked", G_CALLBACK(print_hello), NULL);
+    g_signal_connect(button, "clicked", G_CALLBACK(onButtonPress), NULL);
 
     gtk_window_present(GTK_WINDOW(window));
 /*causes program to crash, won't be implemented yet, or maybe ever
