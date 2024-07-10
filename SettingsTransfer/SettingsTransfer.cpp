@@ -4,6 +4,7 @@
 #include <iostream>
 
 int counter{1};
+//char *file1;
 std::string file1;
 struct File1 {
     std::string selected_file1;
@@ -30,17 +31,23 @@ void open_file_dialog(GObject* source_object, GAsyncResult *res, gpointer user_d
         if (file) {
             g_print("checkpoint 3\n");
             char* path = g_file_get_path(file);
-
             g_print("checkpoint 3.5\n");
+
             if (path) {
                 g_print("checkpiont 4\n");
                 ::file1 = std::string(path);
                 g_print("checkpoint 4.5\n");
                 g_free(path);
                 g_print("checkpoint 4.7");
-                g_print("Selected file: %s\n", path);
-                g_print("string version%s\n", ::file1);
-                ::counter++;
+                g_print("Selected file:%s\n", path);
+                std::cout << "String Version:" << file1 << std::endl;
+
+                if(file1.ends_with("options.txt")){
+                    ::counter++;                    
+                } else {
+                    //should make a warning that the file must be options.txt
+                }
+
             }
             g_object_unref(file);  // Clean up the GFile object
         } else {
@@ -62,7 +69,10 @@ static void onButtonPress(GtkWidget *widget, gpointer user_data) {
 
     if(::counter == 1) {
         g_print("option 1\n");
-        gtk_file_dialog_open(dialog, window, NULL, open_file_dialog, user_data);
+        while(!::file1.ends_with("options.txt")){
+            gtk_file_dialog_open(dialog, window, NULL, open_file_dialog, user_data);
+        }
+        
     }
 
     if(::counter == 2) {

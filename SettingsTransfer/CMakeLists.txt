@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.10)
 project(GTKTutorial)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 set(GTK3_INCLUDE_DIRS "C:/msys64/mingw64/include/")
 set(GTK3_LIBRARY_DIRS "C:/msys64/mingw64/lib")
