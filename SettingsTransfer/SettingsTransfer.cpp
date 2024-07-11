@@ -17,8 +17,8 @@ struct File2 {
 void open_file_dialog(GObject* source_object, GAsyncResult *res, gpointer user_data) {
 
     g_print("file successfully selected\n");
-
-
+    GtkWindow *window = GTK_WINDOW(user_data);
+    
     if(::counter == 1) {
         GError* error = NULL;
         GFile* file = gtk_file_dialog_open_finish(GTK_FILE_DIALOG(source_object), res, &error);
@@ -46,12 +46,17 @@ void open_file_dialog(GObject* source_object, GAsyncResult *res, gpointer user_d
                     ::counter++;                    
                 } else {
                     //should make a warning that the file must be options.txt
+                    GtkAlertDialog *badFile = gtk_alert_dialog_new("Warning");
+                    gtk_alert_dialog_set_detail(badFile, "Selected file must be \"options.txt\"");
+                    gtk_alert_dialog_show(badFile, window);
+                    
                 }
 
             }
             g_object_unref(file);  // Clean up the GFile object
         } else {
             g_print("No file selected.\n");
+            
         }
     
     }
@@ -69,13 +74,13 @@ static void onButtonPress(GtkWidget *widget, gpointer user_data) {
 
     if(::counter == 1) {
         g_print("option 1\n");
-        while(!::file1.ends_with("options.txt")){
-            gtk_file_dialog_open(dialog, window, NULL, open_file_dialog, user_data);
-        }
-        
+        gtk_file_dialog_open(dialog, window, NULL, open_file_dialog, user_data);
+        g_print("it continues despite the function call?");
     }
 
     if(::counter == 2) {
+        g_print("option 2\n");
+        
 
     }
 
@@ -133,6 +138,7 @@ static void activate(GtkApplication *app, gpointer user_data){
     g_signal_connect(button, "clicked", G_CALLBACK(onButtonPress), NULL);
 
     gtk_window_present(GTK_WINDOW(window));
+
 /*causes program to crash, won't be implemented yet, or maybe ever
 
     g_signal_connect(G_OBJECT(window), "notify::default-width", G_CALLBACK(updateButtonPlacement), NULL);    
