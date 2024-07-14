@@ -19,43 +19,63 @@ class SettingsTransfer {
 
         void setWindow(GtkWindow *structure) {window = structure;}
 
+        GtkWindow getWindow(){return window;}
+
         void setApp(GtkApplication *structure) {app = structure;}
+
+        GtkApplication getApp(){return app;}
 
         void setNextButton(GtkWidget *structure) {nextButton = structure;}
 
+        GtkWidget getNextButton(){return nextButton;}
+
         void setFixed(GtkWidget *structure) {fixed = structure;}
+
+        GtkWidget getFixed(){return fixed;}
 
         void setBackButton(GtkWidget *structure) {backButton = structure;}
 
+        GtkWidget getBackButton(){return backButton;}
+
         void setFile1(std::string object) {file1 = object;}
 
-        void setFile1(std::string object) {file2 = object;}
+        std::string getFile1(){return file1;}
 
-        void setButtonPos(double x, double y){
-            buttonX = x;
-            buttonY = y;
+        void setFile2(std::string object) {file2 = object;}
+
+        std::string getFile2(){return file1;}
+
+        void setNextButtonPos(double x, double y){
+            nextButtonY = y;
+            nextButtonX = x;
         }
 
-        void addCounter() {counter++;}
+        double getNextButtonX(return nextButtonX;)
 
-        void subCounter() {counter--;}
+        double getNextButtonY(return nextButtonY)
 
-        void setScreenSize(int height, int width){
+        void addCounter() {if(counter < 3) counter++;}
+
+        void subCounter() {if(counter > 1) counter--;}
+
+        int getCounter() {return counter;}
+
+        void setScreenSize(int height, int width){//doesnt really work here
             screenHeight = height;
             screenWidth = width;
         }
 
-        void setButtonSize(int height, int width){
-            buttonWidth = width;
-            buttonHeight = height;
+        void setNextButtonSize(int height, int width){
+            nextButtonWidth = width;
+            nextButtonHeight = height;
         }
 
     private: 
 
         SettingsTransfer(){}
 
-        int counter{1}, screenWidth, screenHeight, buttonWidth, buttonHeight, status;
-        double buttonX, buttonY;
+        int counter{1}, screenWidth, screenHeight, nextButtonWidth, nextButtonHeight, status;
+        double nextButtonX, nextButtonY;
 
         std::string file1;
         std::string file2;
