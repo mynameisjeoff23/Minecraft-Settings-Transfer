@@ -6,10 +6,12 @@
 class SettingsTransfer{
     public: 
 
-        static SettingsTransfer *getInstance(){
-            static SettingsTransfer *instance; // Guaranteed to be destroyed and instantiated on first use
+        static SettingsTransfer &getInstance(){
+            static SettingsTransfer instance; // Guaranteed to be destroyed and instantiated on first use
             return instance;
         }
+
+        //delete copy constructor and assignment operator
         SettingsTransfer(const SettingsTransfer&) = delete;
         SettingsTransfer& operator=(const SettingsTransfer&) = delete;
 
@@ -45,15 +47,12 @@ class SettingsTransfer{
 
         double getNextButtonY(){return nextButtonY;}
 
-        void updateButtonSize(){
+        void updateButtons(){
             gtk_window_get_default_size(GTK_WINDOW(window), &screenWidth, &screenHeight);
             nextButtonWidth = screenWidth / 10;
             nextButtonHeight = screenHeight / 10;
-            gtk_widget_set_size_request(nextButton, nextButtonWidth, nextButtonHeight);            
-        }
+            gtk_widget_set_size_request(nextButton, nextButtonWidth, nextButtonHeight); 
 
-        void updateButtonPos(){
-            gtk_window_get_default_size(GTK_WINDOW(window), &screenWidth, &screenHeight);
             nextButtonX = (screenWidth * .5) - (.5 * nextButtonWidth);
             nextButtonY = (screenHeight * .6) - (.5 * nextButtonHeight);
             gtk_fixed_put(GTK_FIXED(fixed), nextButton, nextButtonX, nextButtonY);
@@ -78,10 +77,15 @@ class SettingsTransfer{
 
         GtkFileDialog* getDialog(){return fileDialog;}
 
+        
+     
+        GtkApplication* app;
+        GtkWidget *window, *nextButton, *fixed, *backButton; 
+        GtkFileDialog *fileDialog;
+
     private: 
 
         SettingsTransfer(){
-            counter = 1;
             screenWidth = GetSystemMetrics(SM_CXSCREEN) / sqrt(2);
             screenHeight = GetSystemMetrics(SM_CYSCREEN) / sqrt(2);
             std::cout << "things initialized" << std::endl;
@@ -91,15 +95,9 @@ class SettingsTransfer{
             nextButtonY = (screenHeight * .6) - (.5 * nextButtonHeight);
         };
 
-        int counter, screenWidth, screenHeight, nextButtonWidth, nextButtonHeight;
+        int counter{1}, screenWidth, screenHeight, nextButtonWidth, nextButtonHeight;
         double nextButtonX, nextButtonY;
 
-        std::string file1;
-        std::string file2;
-     
-        GtkApplication* app;
-        GtkWidget *window, *nextButton, *fixed, *backButton; 
-        GtkFileDialog *fileDialog;
-
-
+        std::string file1{""};
+        std::string file2{""};
 };
