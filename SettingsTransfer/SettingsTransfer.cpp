@@ -54,13 +54,14 @@ void open_file_dialog(GObject* source_object, GAsyncResult *res, gpointer user_d
 static void onButtonPress(GtkWidget *widget, gpointer user_data) {
 
     SettingsTransfer *AppData = static_cast<SettingsTransfer*>(user_data);
+    std::cout << "Counter: " << AppData->getCounter() << "\nfile1: " << AppData->getFile1() <<\
+    "\nwindow width: " << AppData->getScreenWidth() << "\nbutton x: " << AppData->getNextButtonX() << std::endl;
 
 
     AppData->setDialog(gtk_file_dialog_new());
     
 
     g_print("Hello World\n");
-    std::cout << "Counter: " << AppData->getCounter() << std::endl;
 
     if(AppData->getCounter() == 1) {
         g_print("option 1\n");
@@ -104,33 +105,39 @@ static void activate(GtkApplication *app, gpointer user_data){
 
     AppData->setWindow(gtk_application_window_new(app));
 
-    gtk_window_set_title(GTK_WINDOW(AppData->getWindow()), "MC Settings Transfer");
-    gtk_window_set_default_size( GTK_WINDOW(AppData->getWindow()), AppData->getScreenWidth(), AppData->getScreenHeight());
+    gtk_window_set_title(GTK_WINDOW(AppData->window), "MC Settings Transfer");
+    gtk_window_set_default_size( GTK_WINDOW(AppData->window), AppData->getScreenWidth(), AppData->getScreenHeight());
 
     AppData->setFixed(gtk_fixed_new());
     gtk_window_set_child(GTK_WINDOW(AppData->getWindow()), AppData->getFixed());
 
     AppData->setNextButton(gtk_button_new_with_label("Select File"));
-    AppData->updateButtonPos();
-    AppData->updateButtonSize();    
+    AppData->updateButtons();    
     
     g_signal_connect(AppData->getNextButton(), "clicked", G_CALLBACK(onButtonPress), &AppData);
 
     gtk_window_present(GTK_WINDOW(AppData->getWindow()));
 
+    AppData->setFile1("");
+
 }
 
 
 int main (int argc, char **argv){
-    SettingsTransfer* AppData = SettingsTransfer::getInstance();
+    SettingsTransfer &AppData = SettingsTransfer::getInstance();
+
     GtkApplication *app;
+    g_print("after defining class\n");
     int status;
-
-    app = gtk_application_new ("org.gtk.example", G_APPLICATION_DEFAULT_FLAGS);
+    g_print("before new app\n");
+    app = gtk_application_new("org.gtk.example", G_APPLICATION_DEFAULT_FLAGS);
+    AppData.setApp(app);
+    g_print("new app successful\n");
     g_signal_connect(app, "activate", G_CALLBACK (activate), &AppData);
+    g_print("main runs\n");
 
-    status = g_application_run (G_APPLICATION (app), argc, argv);
-    g_object_unref(app);
+    status = g_application_run (G_APPLICATION(app), argc, argv);
+    g_object_unref(AppData.getApp());
 
     return status;
 }
