@@ -1,16 +1,28 @@
 #include "SettingsTransferClass.hpp"
+/*this is the version of SettingsTransfer that attempts to use a struct instead of a class*/
 
+struct appdata{
+    GtkApplication* app;
+    GtkWidget *window, *nextButton, *fixed, *backButton; 
+    GtkFileDialog *fileDialog;
 
+    int counter{1}, screenWidth, screenHeight, nextButtonWidth, nextButtonHeight;
+    double nextButtonX, nextButtonY;
+
+    std::string file1{""};
+    std::string file2{""};
+
+};
 
 void open_file_dialog(GObject* source_object, GAsyncResult *res, gpointer user_data) {
 
-    SettingsTransfer *AppData = static_cast<SettingsTransfer*>(user_data);
+    appdata *AppData = static_cast<appdata*>(user_data);
 
     g_print("file successfully selected\n");
     
-    if(AppData->getCounter() == 1) {
+    if(AppData->counter == 1) {
         GError* error = NULL;
-        GFile* file = gtk_file_dialog_open_finish(GTK_FILE_DIALOG(AppData->getDialog()), res, &error);
+        GFile* file = gtk_file_dialog_open_finish(GTK_FILE_DIALOG(AppData->fileDialog), res, &error);
         g_print("it at least gets here\n");
 
         if(error) {
@@ -24,20 +36,20 @@ void open_file_dialog(GObject* source_object, GAsyncResult *res, gpointer user_d
 
             if (path) {
                 g_print("checkpiont 4\n");
-                AppData->setFile1(std::string(path));
+                AppData->file1 = std::string(path);
                 g_print("checkpoint 4.5\n");
                 g_free(path);
                 g_print("checkpoint 4.7");
                 g_print("Selected file:%s\n", path);
-                std::cout << "String Version:" << AppData->getFile1() << std::endl;
+                std::cout << "String Version:" << AppData->file1 << std::endl;
 
-                if(AppData->getFile1().ends_with("options.txt")){
-                    AppData->addCounter();                    
+                if(AppData->file1.ends_with("options.txt")){
+                    AppData->file1;                    
                 } else {
                     //should make a warning that the file must be options.txt
                     GtkAlertDialog *badFile = gtk_alert_dialog_new("Warning");
                     gtk_alert_dialog_set_detail(badFile, "Selected file must be \"options.txt\"");
-                    gtk_alert_dialog_show(badFile, GTK_WINDOW(AppData->getWindow()));
+                    gtk_alert_dialog_show(badFile, GTK_WINDOW(AppData->window));
                     
                 }
 
@@ -47,39 +59,50 @@ void open_file_dialog(GObject* source_object, GAsyncResult *res, gpointer user_d
             g_print("No file selected.\n");
             
         }
-    
     }
 }
 
 static void onButtonPress(GtkWidget *widget, gpointer user_data) {
 
-    SettingsTransfer *AppData = static_cast<SettingsTransfer*>(user_data);
-    std::cout << "Counter: " << AppData->getCounter() << "\nfile1: " << AppData->getFile1() <<\
-    "\nwindow width: " << AppData->getScreenWidth() << "\nbutton x: " << AppData->getNextButtonX() << std::endl;
+    appdata *AppData = static_cast<appdata*>(user_data);
+    std::cout << "member function printInt() ";
+    std::cout << "\nCounter: " << AppData->counter << "\nfile1: " << AppData->file1 << "\nendl is making it crash" << std::endl;
+    std::cout << "does this part work?" << std::endl;
+    std::cout << "\nwindow width: " << AppData->screenWidth << "\nbutton x: " << AppData->nextButtonX << std::endl;
 
 
-    AppData->setDialog(gtk_file_dialog_new());
+    AppData->fileDialog = gtk_file_dialog_new();
     
 
     g_print("Hello World\n");
 
-    if(AppData->getCounter() == 1) {
+    if(AppData->counter == 1) {
         g_print("option 1\n");
-        gtk_file_dialog_open(AppData->getDialog(), GTK_WINDOW(AppData->getWindow()), NULL, open_file_dialog, &AppData);
+        gtk_file_dialog_open(AppData->fileDialog, GTK_WINDOW(AppData->window), NULL, open_file_dialog, user_data);
         g_print("it continues despite the function call?");
     }
 
-    if(AppData->getCounter() == 2) {
+    if(AppData->counter == 2) {
         g_print("option 2\n");
         
 
     }
 
-    if(AppData->getCounter() == 3) {
+    if(AppData->counter == 3) {
 
     }
 }
 
+void updateButtons(appdata* AppData){
+            gtk_window_get_default_size(GTK_WINDOW(AppData->window), &AppData->screenWidth, &AppData->screenHeight);
+            AppData->nextButtonWidth = AppData->screenWidth / 10;
+            AppData->nextButtonHeight = AppData->screenHeight / 10;
+            gtk_widget_set_size_request(AppData->nextButton, AppData->nextButtonWidth, AppData->nextButtonHeight); 
+
+            AppData->nextButtonX = (AppData->screenWidth * .5) - (.5 * AppData->nextButtonWidth);
+            AppData->nextButtonY = (AppData->screenHeight * .6) - (.5 * AppData->nextButtonHeight);
+            gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->nextButton, AppData->nextButtonX, AppData->nextButtonY);
+}
 /* there will be no button updating until I figure out a way to detect a resize that doesn't crash the program
 
 gboolean update_button(gpointer user_data){
@@ -101,43 +124,53 @@ gboolean update_button(gpointer user_data){
 } */
 static void activate(GtkApplication *app, gpointer user_data){
     
-    SettingsTransfer *AppData = static_cast<SettingsTransfer*>(user_data);
+    //SettingsTransfer *AppData = static_cast<SettingsTransfer*>(user_data);
+    appdata *AppData = static_cast<appdata*>(user_data);
 
-    AppData->setWindow(gtk_application_window_new(app));
+    AppData->screenWidth = GetSystemMetrics(SM_CXSCREEN) / sqrt(2);
+    AppData->screenHeight = GetSystemMetrics(SM_CYSCREEN) / sqrt(2);
+    std::cout << "things initialized" << "\nScreenWidth: " << AppData->screenWidth << std::endl;
+    AppData->nextButtonWidth = AppData->screenWidth / 10;
+    AppData->nextButtonHeight = AppData->screenHeight / 10;
+    AppData->nextButtonX = (AppData->screenWidth * .5) - (.5 * AppData->nextButtonWidth);
+    AppData->nextButtonY = (AppData->screenHeight * .6) - (.5 * AppData->nextButtonHeight);
+
+    AppData->window = gtk_application_window_new(app);
 
     gtk_window_set_title(GTK_WINDOW(AppData->window), "MC Settings Transfer");
-    gtk_window_set_default_size( GTK_WINDOW(AppData->window), AppData->getScreenWidth(), AppData->getScreenHeight());
+    gtk_window_set_default_size( GTK_WINDOW(AppData->window), AppData->screenWidth, AppData->screenHeight);
 
-    AppData->setFixed(gtk_fixed_new());
-    gtk_window_set_child(GTK_WINDOW(AppData->getWindow()), AppData->getFixed());
+    AppData->fixed = gtk_fixed_new();
+    gtk_window_set_child(GTK_WINDOW(AppData->window), AppData->fixed);
 
-    AppData->setNextButton(gtk_button_new_with_label("Select File"));
-    AppData->updateButtons();    
+    AppData->nextButton = gtk_button_new_with_label("Select File");
+    updateButtons(AppData);    
     
-    g_signal_connect(AppData->getNextButton(), "clicked", G_CALLBACK(onButtonPress), &AppData);
+    g_signal_connect(AppData->nextButton, "clicked", G_CALLBACK(onButtonPress), user_data);
 
-    gtk_window_present(GTK_WINDOW(AppData->getWindow()));
-
-    AppData->setFile1("");
-
+    gtk_window_present(GTK_WINDOW(AppData->window));
+ 
+    AppData->file1 = "fuck you";
 }
 
 
 int main (int argc, char **argv){
-    SettingsTransfer &AppData = SettingsTransfer::getInstance();
+    //SettingsTransfer &AppData = SettingsTransfer::getInstance();
 
-    GtkApplication *app;
-    g_print("after defining class\n");
+    static appdata AppData;
+    appdata *AppDataPtr = &AppData;
+
+    g_print("after defining struct\n");
     int status;
     g_print("before new app\n");
-    app = gtk_application_new("org.gtk.example", G_APPLICATION_DEFAULT_FLAGS);
-    AppData.setApp(app);
+    
+    AppData.app = gtk_application_new("org.gtk.example", G_APPLICATION_DEFAULT_FLAGS);
     g_print("new app successful\n");
-    g_signal_connect(app, "activate", G_CALLBACK (activate), &AppData);
+    g_signal_connect(AppData.app, "activate", G_CALLBACK (activate), AppDataPtr);
     g_print("main runs\n");
 
-    status = g_application_run (G_APPLICATION(app), argc, argv);
-    g_object_unref(AppData.getApp());
+    status = g_application_run (G_APPLICATION(AppData.app), argc, argv);
+    g_object_unref(AppData.app);
 
     return status;
 }
