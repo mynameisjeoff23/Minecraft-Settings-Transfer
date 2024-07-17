@@ -1,4 +1,7 @@
-#include "SettingsTransferClass.hpp"
+#include <gtk/gtk.h>
+#include <windows.h>
+#include <string>
+#include <iostream>
 /*this is the version of SettingsTransfer that attempts to use a struct instead of a class*/
 
 struct appdata{
@@ -79,7 +82,7 @@ static void onButtonPress(GtkWidget *widget, gpointer user_data) {
     if(AppData->counter == 1) {
         g_print("option 1\n");
         gtk_file_dialog_open(AppData->fileDialog, GTK_WINDOW(AppData->window), NULL, open_file_dialog, user_data);
-        g_print("it continues despite the function call?");
+        g_print("it continues despite the function call?\n");
     }
 
     if(AppData->counter == 2) {
