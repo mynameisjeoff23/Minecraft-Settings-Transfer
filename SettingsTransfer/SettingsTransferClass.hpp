@@ -58,7 +58,10 @@ class SettingsTransfer{
             gtk_fixed_put(GTK_FIXED(fixed), nextButton, nextButtonX, nextButtonY);
         }
 
-        void addCounter(){if(counter < 3) counter++;}
+        void addCounter(){
+            if(counter < 3) counter++;
+            std::cout << "incremented counter\n";
+        }
 
         void subCounter(){if(counter > 1) counter--;}
 
@@ -69,7 +72,14 @@ class SettingsTransfer{
             screenWidth = width;
         }
 
-        int getScreenWidth(){return screenWidth;}
+        void printInt(){
+            std::cout << counter << std::endl;
+        }
+
+        int getScreenWidth(){
+            std::cout << "so far screenwidth works" << std::endl;
+            return screenWidth;
+            }
 
         int getScreenHeight(){return screenHeight;}
 
@@ -88,7 +98,7 @@ class SettingsTransfer{
         SettingsTransfer(){
             screenWidth = GetSystemMetrics(SM_CXSCREEN) / sqrt(2);
             screenHeight = GetSystemMetrics(SM_CYSCREEN) / sqrt(2);
-            std::cout << "things initialized" << std::endl;
+            std::cout << "things initialized" << "\nScreenWidth: " << screenWidth << std::endl;
             nextButtonWidth = screenWidth / 10;
             nextButtonHeight = screenHeight / 10;
             nextButtonX = (screenWidth * .5) - (.5 * nextButtonWidth);
