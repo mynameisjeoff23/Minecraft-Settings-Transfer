@@ -19,6 +19,7 @@ struct appdata{
 
 void open_file_dialog(GObject* source_object, GAsyncResult *res, gpointer user_data) {
 
+    //why didnt I do this in python?
     appdata *AppData = static_cast<appdata*>(user_data);
 
     g_print("file successfully selected\n");
@@ -49,7 +50,7 @@ void open_file_dialog(GObject* source_object, GAsyncResult *res, gpointer user_d
                 if(AppData->file1.ends_with("options.txt")){
                     AppData->file1;                    
                 } else {
-                    //should make a warning that the file must be options.txt
+                    //makes a warning that the file must be options.txt
                     GtkAlertDialog *badFile = gtk_alert_dialog_new("Warning");
                     gtk_alert_dialog_set_detail(badFile, "Selected file must be \"options.txt\"");
                     gtk_alert_dialog_show(badFile, GTK_WINDOW(AppData->window));
@@ -127,7 +128,6 @@ gboolean update_button(gpointer user_data){
 } */
 static void activate(GtkApplication *app, gpointer user_data){
     
-    //SettingsTransfer *AppData = static_cast<SettingsTransfer*>(user_data);
     appdata *AppData = static_cast<appdata*>(user_data);
 
     AppData->screenWidth = GetSystemMetrics(SM_CXSCREEN) / sqrt(2);
@@ -158,7 +158,6 @@ static void activate(GtkApplication *app, gpointer user_data){
 
 
 int main (int argc, char **argv){
-    //SettingsTransfer &AppData = SettingsTransfer::getInstance();
 
     static appdata AppData;
     appdata *AppDataPtr = &AppData;
