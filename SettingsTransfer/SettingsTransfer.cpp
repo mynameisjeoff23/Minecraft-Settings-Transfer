@@ -3,6 +3,15 @@
 #include <string>
 #include <iostream>
 /*this is the version of SettingsTransfer that attempts to use a struct instead of a class*/
+std::string PROMPT1 = "To get started, select the \"options.txt\" file of the old minecraft version you \
+    want to transfer the settings from.";
+
+std::string PROMPT2 = "Next, select the \"options.txt\" file of the new minecraft version you want to \
+    transfer the settings to. Make sure you have already installed the mods you want, and you have launced this\
+    version at least once. ";
+
+std::string PROMPT3 = "Transfer Settings!";
+
 
 struct appdata{
     GtkApplication* app;
