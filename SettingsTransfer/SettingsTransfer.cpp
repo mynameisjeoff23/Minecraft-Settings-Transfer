@@ -17,63 +17,73 @@ struct appdata{
 
 };
 
+void wrongFile(appdata *AppData){
+    GtkAlertDialog *badFile = gtk_alert_dialog_new("Warning");
+    gtk_alert_dialog_set_detail(badFile, "Selected file must be \"options.txt\"");
+    gtk_alert_dialog_show(badFile, GTK_WINDOW(AppData->window)); 
+}
+
 void open_file_dialog(GObject* source_object, GAsyncResult *res, gpointer user_data) {
 
     //why didnt I do this in python?
     appdata *AppData = static_cast<appdata*>(user_data);
 
     g_print("file successfully selected\n");
-    
-    if(AppData->counter == 1) {
-        GError* error = NULL;
-        GFile* file = gtk_file_dialog_open_finish(GTK_FILE_DIALOG(AppData->fileDialog), res, &error);
-        g_print("it at least gets here\n");
 
-        if(error) {
-            g_print("Error opening file: %s\n", error->message);
-            g_error_free(error);
-        }
-        if (file) {
-            g_print("checkpoint 3\n");
-            char* path = g_file_get_path(file);
-            g_print("checkpoint 3.5\n");
+    GError* error = NULL;
+    GFile* file = gtk_file_dialog_open_finish(GTK_FILE_DIALOG(AppData->fileDialog), res, &error);
+    g_print("it at least gets here\n");
 
+    if(error) {
+        g_print("Error opening file: %s\n", error->message);
+        g_error_free(error);
+    }
+    if (file) {
+        g_print("checkpoint 3\n");
+        char* path = g_file_get_path(file);
+        g_print("checkpoint 3.5\n");
+
+        if(AppData->counter == 1) { 
             if (path) {
-                g_print("checkpiont 4\n");
                 AppData->file1 = std::string(path);
-                g_print("checkpoint 4.5\n");
                 g_free(path);
-                g_print("checkpoint 4.7");
-                g_print("Selected file:%s\n", path);
-                std::cout << "String Version:" << AppData->file1 << std::endl;
+                g_print("File 1: %s\n", path);
+                std::cout << "String Version: " << AppData->file1 << std::endl;
 
                 if(AppData->file1.ends_with("options.txt")){
-                    AppData->file1;                    
+                    AppData->counter++;                    
                 } else {
                     //makes a warning that the file must be options.txt
-                    GtkAlertDialog *badFile = gtk_alert_dialog_new("Warning");
-                    gtk_alert_dialog_set_detail(badFile, "Selected file must be \"options.txt\"");
-                    gtk_alert_dialog_show(badFile, GTK_WINDOW(AppData->window));
-                    
+                    wrongFile(AppData);                   
                 }
-
             }
-            g_object_unref(file);  // Clean up the GFile object
-        } else {
-            g_print("No file selected.\n");
+        } else if(AppData->counter == 2){
+            if (path) {
+                AppData->file2 = std::string(path);
+                g_free(path);
+                g_print("File 2: %s\n", path);
+                std::cout << "String Version: " << AppData->file2 << std::endl;
+
+                if(AppData->file2.ends_with("options.txt")){
+                    AppData->counter++;                    
+                } else {
+                    //makes a warning that the file must be options.txt
+                    wrongFile(AppData);                   
+                }
+            }
+
+        } 
             
-        }
+        } else {g_print("No file selected.\n");}
+              
+        // Clean up the GFile object
+        g_object_unref(file);
     }
-}
+
 
 static void onButtonPress(GtkWidget *widget, gpointer user_data) {
 
     appdata *AppData = static_cast<appdata*>(user_data);
-    std::cout << "member function printInt() ";
-    std::cout << "\nCounter: " << AppData->counter << "\nfile1: " << AppData->file1 << "\nendl is making it crash" << std::endl;
-    std::cout << "does this part work?" << std::endl;
-    std::cout << "\nwindow width: " << AppData->screenWidth << "\nbutton x: " << AppData->nextButtonX << std::endl;
-
 
     AppData->fileDialog = gtk_file_dialog_new();
     
@@ -83,13 +93,11 @@ static void onButtonPress(GtkWidget *widget, gpointer user_data) {
     if(AppData->counter == 1) {
         g_print("option 1\n");
         gtk_file_dialog_open(AppData->fileDialog, GTK_WINDOW(AppData->window), NULL, open_file_dialog, user_data);
-        g_print("it continues despite the function call?\n");
     }
 
     if(AppData->counter == 2) {
-        g_print("option 2\n");
-        
-
+        g_print("option 2\n");       
+        gtk_file_dialog_open(AppData->fileDialog, GTK_WINDOW(AppData->window), NULL, open_file_dialog, user_data);
     }
 
     if(AppData->counter == 3) {
