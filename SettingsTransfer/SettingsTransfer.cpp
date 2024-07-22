@@ -6,14 +6,14 @@
 bool DEBUG = true;
 
 /*this is the version of SettingsTransfer that attempts to use a struct instead of a class*/
-const char *PROMPT1 = "To get started, select the \"options.txt\" file of the old minecraft version you \
-    want to transfer the settings from.";
+const char *PROMPT1 = "STEP 1: To get started, select the \"options.txt\" file of the old minecraft version you \
+want to transfer the settings from.";
 
-const char *PROMPT2 = "Next, select the \"options.txt\" file of the new minecraft version you want to \
-    transfer the settings to. Make sure you have already installed the mods you want, and you have launced this\
-    version at least once. ";
+const char *PROMPT2 = "STEP 2: Next, select the \"options.txt\" file of the new minecraft version you want to \
+transfer the settings to. Make sure you have already installed the mods you want, and you have launced this\
+version at least once. ";
 
-const char *PROMPT3 = "Transfer Settings!";
+const char *PROMPT3 = "STEP 3: Transfer Settings!";
 
 
 struct appdata{
@@ -21,6 +21,8 @@ struct appdata{
     GtkWidget *window, *nextButton, *fixed, *backButton, *view; 
     GtkFileDialog *fileDialog;
     GtkTextBuffer *buffer;
+    GtkTextTagTable *tagTable;
+    GtkTextTag *centerTag;
 
     int counter{1}, screenWidth, screenHeight, nextButtonWidth, nextButtonHeight, textW, textH;
     double nextButtonX, nextButtonY, textX, textY;
@@ -86,11 +88,9 @@ void open_file_dialog(GObject* source_object, GAsyncResult *res, gpointer user_d
             }
 
         } 
-            
+        g_object_unref(file); // Clean up the GFile object   
         } else {if(::DEBUG) g_print("No file selected.\n");}
               
-        // Clean up the GFile object
-        g_object_unref(file);
     }
 
 
@@ -118,51 +118,56 @@ static void onButtonPress(GtkWidget *widget, gpointer user_data) {
     }
 }
 
-void updateButtons(appdata* AppData){
-            gtk_window_get_default_size(GTK_WINDOW(AppData->window), &AppData->screenWidth, &AppData->screenHeight);
-            AppData->nextButtonWidth = AppData->screenWidth / 10;
-            AppData->nextButtonHeight = AppData->screenHeight / 10;
-            AppData->nextButtonX = (AppData->screenWidth * .5) - (.5 * AppData->nextButtonWidth);
-            AppData->nextButtonY = (AppData->screenHeight * .6) - (.5 * AppData->nextButtonHeight);
-            gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->nextButton, AppData->nextButtonX, AppData->nextButtonY);
-            gtk_widget_set_size_request(AppData->nextButton, AppData->nextButtonWidth, AppData->nextButtonHeight); 
+void updateWidgets(appdata* AppData){
+    gtk_window_get_default_size(GTK_WINDOW(AppData->window), &AppData->screenWidth, &AppData->screenHeight);
+    AppData->nextButtonWidth = AppData->screenWidth / 10;
+    AppData->nextButtonHeight = AppData->screenHeight / 10;
+    AppData->nextButtonX = (AppData->screenWidth * .5) - (.5 * AppData->nextButtonWidth);
+    AppData->nextButtonY = (AppData->screenHeight * .6) - (.5 * AppData->nextButtonHeight);
+    gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->nextButton, AppData->nextButtonX, AppData->nextButtonY);
+    gtk_widget_set_size_request(AppData->nextButton, AppData->nextButtonWidth, AppData->nextButtonHeight); 
 
-            AppData->textW = .9 * AppData->screenWidth;
-            AppData->textH = .15 * AppData->screenHeight;
-            AppData->textX = (AppData->screenWidth * .5) - (.5 * AppData->textW);
-            AppData->textY = (AppData->screenHeight * .4) - (.5 * AppData->textH);
-            gtk_widget_set_size_request(AppData->view, AppData->textW, AppData->textH);
-            gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->view, AppData->textX, AppData->textY);            
+    AppData->textW = .9 * AppData->screenWidth;
+    AppData->textH = .15 * AppData->screenHeight;
+    AppData->textX = (AppData->screenWidth * .5) - (.5 * AppData->textW);
+    AppData->textY = (AppData->screenHeight * .4) - (.5 * AppData->textH);
+    gtk_widget_set_size_request(AppData->view, AppData->textW, AppData->textH);
+    gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->view, AppData->textX, AppData->textY);            
 }
 
 static void activate(GtkApplication *app, gpointer user_data){
     
     appdata *AppData = static_cast<appdata*>(user_data);
 
+    //set up initial screen size
     AppData->screenWidth = GetSystemMetrics(SM_CXSCREEN) / sqrt(2);
     AppData->screenHeight = GetSystemMetrics(SM_CYSCREEN) / sqrt(2);
     if(::DEBUG) std::cout << "things initialized" << "\nScreenWidth: " << AppData->screenWidth << std::endl;
-    AppData->nextButtonWidth = AppData->screenWidth / 10;
-    AppData->nextButtonHeight = AppData->screenHeight / 10;
-    AppData->nextButtonX = (AppData->screenWidth * .5) - (.5 * AppData->nextButtonWidth);
-    AppData->nextButtonY = (AppData->screenHeight * .6) - (.5 * AppData->nextButtonHeight);
 
+    //create a window
     AppData->window = gtk_application_window_new(app);
     gtk_window_set_title(GTK_WINDOW(AppData->window), "MC Settings Transfer");
     gtk_window_set_default_size( GTK_WINDOW(AppData->window), AppData->screenWidth, AppData->screenHeight);
 
+    //create a fixed
     AppData->fixed = gtk_fixed_new();
     gtk_window_set_child(GTK_WINDOW(AppData->window), AppData->fixed);
 
+    //create a textview and a buffer
     if(::DEBUG) g_print("before textview\n");
     AppData->view = gtk_text_view_new();
     AppData->buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(AppData->view));
+    gtk_text_view_set_editable(GTK_TEXT_VIEW(AppData->view), FALSE);
+    gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(AppData->view), FALSE);
     gtk_text_buffer_set_text(AppData->buffer, ::PROMPT1, -1);
+    gtk_text_view_set_justification(GTK_TEXT_VIEW(AppData->view), GTK_JUSTIFY_CENTER);
 
-
+    //create the next button
     if(::DEBUG) g_print("before next button\n");
     AppData->nextButton = gtk_button_new_with_label("Select File");
-    updateButtons(AppData);    
+
+    //update dimensions and position of all widgets
+    updateWidgets(AppData);    
     
     g_signal_connect(AppData->nextButton, "clicked", G_CALLBACK(onButtonPress), user_data);
 
