@@ -22,8 +22,8 @@ struct appdata{
     GtkFileDialog *fileDialog;
     GtkTextBuffer *buffer;
 
-    int counter{1}, screenWidth, screenHeight, nextButtonWidth, nextButtonHeight;
-    double nextButtonX, nextButtonY;
+    int counter{1}, screenWidth, screenHeight, nextButtonWidth, nextButtonHeight, textW, textH;
+    double nextButtonX, nextButtonY, textX, textY;
 
     std::string file1{""};
     std::string file2{""};
@@ -122,31 +122,19 @@ void updateButtons(appdata* AppData){
             gtk_window_get_default_size(GTK_WINDOW(AppData->window), &AppData->screenWidth, &AppData->screenHeight);
             AppData->nextButtonWidth = AppData->screenWidth / 10;
             AppData->nextButtonHeight = AppData->screenHeight / 10;
-            gtk_widget_set_size_request(AppData->nextButton, AppData->nextButtonWidth, AppData->nextButtonHeight); 
-
             AppData->nextButtonX = (AppData->screenWidth * .5) - (.5 * AppData->nextButtonWidth);
             AppData->nextButtonY = (AppData->screenHeight * .6) - (.5 * AppData->nextButtonHeight);
             gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->nextButton, AppData->nextButtonX, AppData->nextButtonY);
-}
-/* there will be no button updating until I figure out a way to detect a resize that doesn't crash the program
+            gtk_widget_set_size_request(AppData->nextButton, AppData->nextButtonWidth, AppData->nextButtonHeight); 
 
-gboolean update_button(gpointer user_data){
-    GtkWindow *window = GTK_WINDOW(user_data)
-
-    int windowWidth, windowHeight;
-    gtk_window_get_default_size(GTK_WINDOW(window), &width, &height);
-
-    int buttonWidth = windowWidth / 10;
-    int buttonHeight = windowHeight / 10; 
-
-    gtk_widget_set_size_request(button, buttonWidth, buttonHeight);
+            AppData->textW = .9 * AppData->screenWidth;
+            AppData->textH = .15 * AppData->screenHeight;
+            AppData->textX = (AppData->screenWidth * .5) - (.5 * AppData->textW);
+            AppData->textY = (AppData->screenHeight * .4) - (.5 * AppData->textH);
+            gtk_widget_set_size_request(AppData->view, AppData->textW, AppData->textH);
+            gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->view, AppData->textX, AppData->textY);            
 }
 
-    int buttonX = windowWidth * .6;
-    int buttonY = windowHeight * .5;
-
-    gtk_fixed_put(GTK_FIXED(fixed), button, buttonX, buttonY);
-} */
 static void activate(GtkApplication *app, gpointer user_data){
     
     appdata *AppData = static_cast<appdata*>(user_data);
@@ -160,18 +148,17 @@ static void activate(GtkApplication *app, gpointer user_data){
     AppData->nextButtonY = (AppData->screenHeight * .6) - (.5 * AppData->nextButtonHeight);
 
     AppData->window = gtk_application_window_new(app);
-
     gtk_window_set_title(GTK_WINDOW(AppData->window), "MC Settings Transfer");
     gtk_window_set_default_size( GTK_WINDOW(AppData->window), AppData->screenWidth, AppData->screenHeight);
 
     AppData->fixed = gtk_fixed_new();
     gtk_window_set_child(GTK_WINDOW(AppData->window), AppData->fixed);
 
-   /* if(::DEBUG) g_print("before textview\n");
+    if(::DEBUG) g_print("before textview\n");
     AppData->view = gtk_text_view_new();
     AppData->buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(AppData->view));
     gtk_text_buffer_set_text(AppData->buffer, ::PROMPT1, -1);
-    gtk_window_set_child(GTK_WINDOW(AppData->window), AppData->view);*/
+
 
     if(::DEBUG) g_print("before next button\n");
     AppData->nextButton = gtk_button_new_with_label("Select File");
