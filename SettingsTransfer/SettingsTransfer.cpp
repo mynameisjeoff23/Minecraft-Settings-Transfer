@@ -24,7 +24,7 @@ struct appdata{
     GtkTextTagTable *tagTable;
     GtkTextTag *centerTag;
 
-    int counter{1}, screenWidth, screenHeight, nextButtonWidth, nextButtonHeight, textW, textH;
+    int counter{1}, screenWidth, screenHeight, newScreenWidth, newScreenHeight, nextButtonWidth, nextButtonHeight, textW, textH;
     double nextButtonX, nextButtonY, textX, textY;
 
     std::string file1{""};
@@ -118,26 +118,61 @@ static void onButtonPress(GtkWidget *widget, gpointer user_data) {
     }
 }
 
-void updateWidgets(appdata* AppData){
-    gtk_window_get_default_size(GTK_WINDOW(AppData->window), &AppData->screenWidth, &AppData->screenHeight);
-    AppData->nextButtonWidth = AppData->screenWidth / 10;
-    AppData->nextButtonHeight = AppData->screenHeight / 10;
-    AppData->nextButtonX = (AppData->screenWidth * .5) - (.5 * AppData->nextButtonWidth);
-    AppData->nextButtonY = (AppData->screenHeight * .6) - (.5 * AppData->nextButtonHeight);
-    gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->nextButton, AppData->nextButtonX, AppData->nextButtonY);
-    gtk_widget_set_size_request(AppData->nextButton, AppData->nextButtonWidth, AppData->nextButtonHeight); 
+gboolean updateWidgets(gpointer user_data){
+    appdata *AppData = static_cast<appdata*>(user_data);
 
-    AppData->textW = .9 * AppData->screenWidth;
-    AppData->textH = .15 * AppData->screenHeight;
-    AppData->textX = (AppData->screenWidth * .5) - (.5 * AppData->textW);
-    AppData->textY = (AppData->screenHeight * .4) - (.5 * AppData->textH);
-    gtk_widget_set_size_request(AppData->view, AppData->textW, AppData->textH);
-    gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->view, AppData->textX, AppData->textY);            
+    gtk_window_get_default_size(GTK_WINDOW(AppData->window), &AppData->newScreenWidth, &AppData->newScreenHeight);
+    if (AppData->newScreenWidth != AppData->screenWidth || AppData->newScreenHeight != AppData->screenHeight){
+
+        if(::DEBUG) g_print("screen size is not the same\n");
+        AppData->nextButtonWidth = AppData->newScreenWidth / 10;
+        AppData->nextButtonHeight = AppData->screenHeight / 10;
+        AppData->nextButtonX = (AppData->newScreenWidth * .5) - (.5 * AppData->nextButtonWidth);
+        AppData->nextButtonY = (AppData->screenHeight * .6) - (.5 * AppData->nextButtonHeight);
+        gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->nextButton, AppData->nextButtonX, AppData->nextButtonY);
+        gtk_widget_set_size_request(AppData->nextButton, AppData->nextButtonWidth, AppData->nextButtonHeight); 
+        /*prototype code
+        if (AppData->nextButton != NULL) {
+            // Check and remove parent for nextButton
+            if (gtk_widget_get_parent(AppData->nextButton) != NULL) {
+                gtk_widget_unparent(AppData->nextButton);
+                gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->nextButton, AppData->nextButtonX, AppData->nextButtonY);
+                gtk_widget_set_size_request(AppData->nextButton, AppData->nextButtonWidth, AppData->nextButtonHeight); 
+                gtk_widget_show(AppData->nextButton);
+            }
+        } else if(::DEBUG) g_print("nextButton is NULL\n");*/
+        
+
+        AppData->textW = .9 * AppData->newScreenWidth;
+        AppData->textH = .15 * AppData->screenHeight;
+        AppData->textX = (AppData->newScreenWidth * .5) - (.5 * AppData->textW);
+        AppData->textY = (AppData->screenHeight * .4) - (.5 * AppData->textH);
+        gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->view, AppData->textX, AppData->textY);
+        gtk_widget_set_size_request(AppData->view, AppData->textW, AppData->textH);
+        /*prototype code
+        if (AppData->nextButton != NULL) {
+            // Check and remove parent for nextButton
+            if (gtk_widget_get_parent(AppData->view) != NULL) {
+                gtk_widget_unparent(AppData->view);
+                gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->view, AppData->textX, AppData->textY);
+                gtk_widget_set_size_request(AppData->view, AppData->textW, AppData->textH);
+                gtk_widget_show(AppData->view);
+            }
+        } else if(::DEBUG) g_print("nextButton is NULL\n");*/
+
+        AppData->screenWidth = AppData->newScreenWidth;
+        AppData->screenHeight = AppData->newScreenHeight;
+    }
+    
+    return TRUE;   
 }
 
 static void activate(GtkApplication *app, gpointer user_data){
     
     appdata *AppData = static_cast<appdata*>(user_data);
+    GtkCssProvider *provider;
+    GtkStyleContext *context;
+    GtkTextTag *tag;
 
     //set up initial screen size
     AppData->screenWidth = GetSystemMetrics(SM_CXSCREEN) / sqrt(2);
@@ -162,17 +197,33 @@ static void activate(GtkApplication *app, gpointer user_data){
     gtk_text_buffer_set_text(AppData->buffer, ::PROMPT1, -1);
     gtk_text_view_set_justification(GTK_TEXT_VIEW(AppData->view), GTK_JUSTIFY_CENTER);
 
+    //change textview font and color
+    provider = gtk_css_provider_new();
+    //use gtk_css_provider_load_from_string
+    gtk_css_provider_load_from_string(provider,
+                                 "textview {"
+                                 " font: 25px serif;"
+                                 "  color: black;"
+                                 "}");
+    context = gtk_widget_get_style_context(AppData->view);
+    gtk_style_context_add_provider(context,
+                                GTK_STYLE_PROVIDER (provider),
+                                GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+
     //create the next button
     if(::DEBUG) g_print("before next button\n");
     AppData->nextButton = gtk_button_new_with_label("Select File");
 
     //update dimensions and position of all widgets
-    updateWidgets(AppData);    
+    gtk_window_set_default_size( GTK_WINDOW(AppData->window), AppData->screenWidth + 1, AppData->screenHeight + 1);
+    updateWidgets(user_data);    
     
     g_signal_connect(AppData->nextButton, "clicked", G_CALLBACK(onButtonPress), user_data);
-
+    
     if(::DEBUG) g_print("before presenting window\n");
     gtk_window_present(GTK_WINDOW(AppData->window));
+    g_timeout_add(1000, updateWidgets, user_data);
  }
 
 
@@ -191,6 +242,7 @@ int main (int argc, char **argv){
     if(::DEBUG) g_print("main runs\n");
 
     status = g_application_run (G_APPLICATION(AppData.app), argc, argv);
+
     g_object_unref(AppData.app);
 
     return status;
