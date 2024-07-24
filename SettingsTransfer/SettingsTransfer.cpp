@@ -126,9 +126,9 @@ gboolean updateWidgets(gpointer user_data){
 
         if(::DEBUG) g_print("screen size is not the same\n");
         AppData->nextButtonWidth = AppData->newScreenWidth / 10;
-        AppData->nextButtonHeight = AppData->screenHeight / 10;
+        AppData->nextButtonHeight = AppData->newScreenHeight / 10;
         AppData->nextButtonX = (AppData->newScreenWidth * .5) - (.5 * AppData->nextButtonWidth);
-        AppData->nextButtonY = (AppData->screenHeight * .6) - (.5 * AppData->nextButtonHeight);
+        AppData->nextButtonY = (AppData->newScreenHeight * .6) - (.5 * AppData->nextButtonHeight);
         gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->nextButton, AppData->nextButtonX, AppData->nextButtonY);
         gtk_widget_set_size_request(AppData->nextButton, AppData->nextButtonWidth, AppData->nextButtonHeight); 
         /*prototype code
@@ -144,9 +144,9 @@ gboolean updateWidgets(gpointer user_data){
         
 
         AppData->textW = .9 * AppData->newScreenWidth;
-        AppData->textH = .15 * AppData->screenHeight;
+        AppData->textH = .15 * AppData->newScreenHeight;
         AppData->textX = (AppData->newScreenWidth * .5) - (.5 * AppData->textW);
-        AppData->textY = (AppData->screenHeight * .4) - (.5 * AppData->textH);
+        AppData->textY = (AppData->newScreenHeight * .4) - (.5 * AppData->textH);
         gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->view, AppData->textX, AppData->textY);
         gtk_widget_set_size_request(AppData->view, AppData->textW, AppData->textH);
         /*prototype code
