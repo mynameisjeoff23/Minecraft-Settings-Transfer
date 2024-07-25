@@ -11,5 +11,6 @@ This is a gui program that guides you through the process of transfering your se
   For this to work best, it is important you have already installed the mods you will use in the new version.
 
   Warning: this program is built for windows
+  
   Warning: the executable might not run even if on windows. If it doesn't, I dont know how to make it compatible.
   
