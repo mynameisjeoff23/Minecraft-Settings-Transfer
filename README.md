@@ -2,6 +2,8 @@ UNDER CONSTRUCTION
 
 expect basic functionality before the last week of August
 
+This program makes it so you dont have to set your keybinds (among other things) every time you make a new version of minecraft.
+
 This is a gui program that guides you through the process of transfering your settings from a previous minecraft version to another one. Here is how it works:
   You select the setings file from the old version, and you select the settings file of the new version, if they happen to be in different folders. 
   If they have the same default directory, you do not need this.
