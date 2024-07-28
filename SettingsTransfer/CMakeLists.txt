@@ -17,4 +17,5 @@ add_definitions(${GTK4_CFLAGS_OTHER})
 
 add_executable(SettingsTransfer SettingsTransfer.cpp)
 #set_target_properties(SettingsTransfer PROPERTIES WIN32_EXECUTABLE true)  # If you want console to run with your .exe
-target_link_libraries(SettingsTransfer ${GTK4_LIBRARIES}) #i made some changes to test out git
+target_link_libraries(SettingsTransfer ${GTK4_LIBRARIES})
+target_link_libraries(SettingsTransfer Shell32)
