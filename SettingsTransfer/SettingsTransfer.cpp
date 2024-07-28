@@ -2,6 +2,9 @@
 #include <windows.h>
 #include <string>
 #include <iostream>
+#include <ShlObj.h>
+#include <locale>
+#include <codecvt>
 
 bool DEBUG = true;
 
@@ -30,6 +33,8 @@ struct appdata{
 
     std::string file1{""};
     std::string file2{""};
+    std::string usrPath;
+    std::string mcPath;
 
 };
 
@@ -99,8 +104,11 @@ static void onButtonPress(GtkWidget *widget, gpointer user_data) {
 
     appdata *AppData = static_cast<appdata*>(user_data);
 
+    GFile *defaultFile = g_file_new_for_path(AppData->mcPath.c_str());
+    if(::DEBUG) g_print("G mc File: %s\n", g_file_get_path(defaultFile));
+
     AppData->fileDialog = gtk_file_dialog_new();
-    
+    gtk_file_dialog_set_initial_folder(AppData->fileDialog, defaultFile);    
 
     if(::DEBUG) g_print("Hello World\n");
 
@@ -150,6 +158,21 @@ gboolean updateWidgets(gpointer user_data){
     }
     
     return TRUE;   
+}
+
+std::string getUserPath(){
+    wchar_t path[MAX_PATH];
+
+    if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_PROFILE, NULL, 0, path))) {
+        std::wstring ws(path);
+        std::string userPath(ws.begin(), ws.end());
+        if (::DEBUG) std::cout << "User profile path: " << userPath << std::endl;
+        return userPath;
+    } else {
+        if(::DEBUG) std::cerr << "Failed to get user profile path" << std::endl;
+    }
+
+    return "";
 }
 
 static void activate(GtkApplication *app, gpointer user_data){
@@ -209,6 +232,10 @@ static void activate(GtkApplication *app, gpointer user_data){
     if(::DEBUG) g_print("before presenting window\n");
     gtk_window_present(GTK_WINDOW(AppData->window));
     g_timeout_add(30, updateWidgets, user_data);
+
+    AppData->usrPath = getUserPath();
+    AppData->mcPath = AppData->usrPath + "\\AppData\\Roaming\\.minecraft";
+    if(::DEBUG) std::cout << "mcPath: " << AppData->mcPath << std::endl;
  }
 
 
