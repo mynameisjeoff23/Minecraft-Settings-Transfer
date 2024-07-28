@@ -13,7 +13,7 @@ const char *PROMPT1 = "STEP 1: To get started, select the \"options.txt\" file o
 want to transfer the settings from.";
 
 const char *PROMPT2 = "STEP 2: Next, select the \"options.txt\" file of the new minecraft version you want to \
-transfer the settings to. Make sure you have already installed the mods you want, and you have launced this\
+transfer the settings to. Make sure you have already installed the mods you want, and you have launched this\
 version at least once. ";
 
 const char *PROMPT3 = "STEP 3: Transfer Settings!";
@@ -21,14 +21,16 @@ const char *PROMPT3 = "STEP 3: Transfer Settings!";
 
 struct appdata{
     GtkApplication* app;
-    GtkWidget *window, *nextButton, *fixed, *backButton, *view; 
+    GtkWidget *window, *nextButton, *fixed, *backButton, *view, *nextLabel; 
     GtkFileDialog *fileDialog;
     GtkTextBuffer *buffer;
     GtkTextTagTable *tagTable;
     GtkTextTag *centerTag;
+    GFile *defaultFile;
 
-    int counter{1}, screenWidth, screenHeight, newScreenWidth, newScreenHeight, nextButtonWidth, nextButtonHeight, textW, textH;
-    double nextButtonX, nextButtonY, textX, textY;
+    int counter{1}, screenWidth, screenHeight, newScreenWidth, newScreenHeight, \
+    nextButtonWidth, nextButtonHeight, textW, textH, backButtonW, backButtonH;
+    double nextButtonX, nextButtonY, textX, textY, backButtonX, backbuttonY;
     bool started = false;
 
     std::string file1{""};
@@ -38,11 +40,15 @@ struct appdata{
 
 };
 
+//#######################################################################################
+
 void wrongFile(appdata *AppData){
     GtkAlertDialog *badFile = gtk_alert_dialog_new("Warning");
     gtk_alert_dialog_set_detail(badFile, "Selected file must be \"options.txt\"");
     gtk_alert_dialog_show(badFile, GTK_WINDOW(AppData->window)); 
 }
+
+//#######################################################################################
 
 void open_file_dialog(GObject* source_object, GAsyncResult *res, gpointer user_data) {
 
@@ -72,7 +78,9 @@ void open_file_dialog(GObject* source_object, GAsyncResult *res, gpointer user_d
                 if(::DEBUG) std::cout << "String Version: " << AppData->file1 << std::endl;
 
                 if(AppData->file1.ends_with("options.txt")){
-                    AppData->counter++;                    
+                    if(::DEBUG) g_print("Counter: %i\n", AppData->counter);
+                    AppData->counter++;
+                    gtk_text_buffer_set_text(GTK_TEXT_BUFFER(AppData->buffer), ::PROMPT2, -1);                    
                 } else {
                     //makes a warning that the file must be options.txt
                     wrongFile(AppData);                   
@@ -86,7 +94,10 @@ void open_file_dialog(GObject* source_object, GAsyncResult *res, gpointer user_d
                 if(::DEBUG) std::cout << "String Version: " << AppData->file2 << std::endl;
 
                 if(AppData->file2.ends_with("options.txt")){
-                    AppData->counter++;                    
+                    if(::DEBUG) g_print("Counter: %i\n", AppData->counter);
+                    AppData->counter++;
+                    gtk_label_set_text(GTK_LABEL(AppData->nextLabel), "Transfer Settings!");
+                    gtk_text_buffer_set_text(GTK_TEXT_BUFFER(AppData->buffer), ::PROMPT3, -1);                    
                 } else {
                     //makes a warning that the file must be options.txt
                     wrongFile(AppData);                   
@@ -99,18 +110,14 @@ void open_file_dialog(GObject* source_object, GAsyncResult *res, gpointer user_d
               
     }
 
+//#######################################################################################
 
 static void onButtonPress(GtkWidget *widget, gpointer user_data) {
 
     appdata *AppData = static_cast<appdata*>(user_data);
 
-    GFile *defaultFile = g_file_new_for_path(AppData->mcPath.c_str());
-    if(::DEBUG) g_print("G mc File: %s\n", g_file_get_path(defaultFile));
-
     AppData->fileDialog = gtk_file_dialog_new();
-    gtk_file_dialog_set_initial_folder(AppData->fileDialog, defaultFile);    
-
-    if(::DEBUG) g_print("Hello World\n");
+    gtk_file_dialog_set_initial_folder(AppData->fileDialog, AppData->defaultFile);    
 
     if(AppData->counter == 1) {
         if(::DEBUG) g_print("option 1\n");
@@ -120,12 +127,37 @@ static void onButtonPress(GtkWidget *widget, gpointer user_data) {
     if(AppData->counter == 2) {
         if(::DEBUG) g_print("option 2\n");       
         gtk_file_dialog_open(AppData->fileDialog, GTK_WINDOW(AppData->window), NULL, open_file_dialog, user_data);
+        
     }
 
     if(AppData->counter == 3) {
+        if(::DEBUG) g_print("yay 3\n");
+        
+        
+        
 
     }
 }
+
+//#################################################################################################
+
+static void onBack(GtkWidget *widget, gpointer user_data){
+    appdata *AppData = static_cast<appdata*>(user_data);
+
+    if (AppData->counter > 1) AppData->counter--;
+    if (AppData->counter == 1) {
+        gtk_text_buffer_set_text(GTK_TEXT_BUFFER(AppData->buffer), ::PROMPT1, -1);
+        AppData->file1.clear();
+        if(::DEBUG) std::cout << "File 1: " << AppData->file1 << "\n" << std::endl; 
+    }
+    else if (AppData->counter == 2){
+        gtk_text_buffer_set_text(GTK_TEXT_BUFFER(AppData->buffer), ::PROMPT2, -1);
+        AppData->file2.clear();
+        if(::DEBUG) std::cout << "File 2: " << AppData->file2 << "\n" << std::endl;
+    }
+}
+
+//##########################################################################################
 
 gboolean updateWidgets(gpointer user_data){
     appdata *AppData = static_cast<appdata*>(user_data);
@@ -141,7 +173,17 @@ gboolean updateWidgets(gpointer user_data){
         if(!AppData->started){
             gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->nextButton, AppData->nextButtonX, AppData->nextButtonY);
         } else gtk_fixed_move(GTK_FIXED(AppData->fixed), AppData->nextButton, AppData->nextButtonX, AppData->nextButtonY);
-        gtk_widget_set_size_request(AppData->nextButton, AppData->nextButtonWidth, AppData->nextButtonHeight);         
+        gtk_widget_set_size_request(AppData->nextButton, AppData->nextButtonWidth, AppData->nextButtonHeight);
+
+        if(::DEBUG) g_print("screen size is not the same\n");
+        AppData->backButtonW = AppData->newScreenWidth / 20;
+        AppData->backButtonH = AppData->newScreenHeight / 20;
+        AppData->backButtonX = (AppData->newScreenWidth * .025);
+        AppData->backbuttonY = (AppData->newScreenHeight * .025);
+        if(!AppData->started){
+            gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->backButton, AppData->backButtonX, AppData->backbuttonY);
+        } else gtk_fixed_move(GTK_FIXED(AppData->fixed), AppData->backButton, AppData->backButtonX, AppData->backbuttonY);
+        gtk_widget_set_size_request(AppData->backButton, AppData->backButtonW, AppData->backButtonH);                 
 
         AppData->textW = .9 * AppData->newScreenWidth;
         AppData->textH = .15 * AppData->newScreenHeight;
@@ -149,7 +191,7 @@ gboolean updateWidgets(gpointer user_data){
         AppData->textY = (AppData->newScreenHeight * .4) - (.5 * AppData->textH);
         if(!AppData->started){
             gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->view, AppData->textX, AppData->textY);
-        AppData->started = true;
+            AppData->started = true;
         } else gtk_fixed_move(GTK_FIXED(AppData->fixed), AppData->view, AppData->textX, AppData->textY);
         gtk_widget_set_size_request(AppData->view, AppData->textW, AppData->textH);
 
@@ -159,6 +201,8 @@ gboolean updateWidgets(gpointer user_data){
     
     return TRUE;   
 }
+
+//#######################################################################################
 
 std::string getUserPath(){
     wchar_t path[MAX_PATH];
@@ -174,6 +218,8 @@ std::string getUserPath(){
 
     return "";
 }
+
+//#######################################################################################
 
 static void activate(GtkApplication *app, gpointer user_data){
     
@@ -220,15 +266,21 @@ static void activate(GtkApplication *app, gpointer user_data){
                                 GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
 
-    //create the next button
+    //create the next button and label
     if(::DEBUG) g_print("before next button\n");
-    AppData->nextButton = gtk_button_new_with_label("Select File");
+    AppData->nextButton = gtk_button_new();
+    AppData->nextLabel = gtk_label_new("Select File");
+    gtk_button_set_child(GTK_BUTTON(AppData->nextButton), AppData->nextLabel);
+    gtk_label_set_wrap(GTK_LABEL(AppData->nextLabel), GTK_WRAP_WORD);
+
+    AppData->backButton = gtk_button_new_with_label("Back");
 
     //update dimensions and position of all widgets
     gtk_window_set_default_size( GTK_WINDOW(AppData->window), AppData->screenWidth + 1, AppData->screenHeight + 1);
     updateWidgets(user_data);    
     
     g_signal_connect(AppData->nextButton, "clicked", G_CALLBACK(onButtonPress), user_data);
+    g_signal_connect(AppData->backButton, "clicked", G_CALLBACK(onBack), user_data);
     
     if(::DEBUG) g_print("before presenting window\n");
     gtk_window_present(GTK_WINDOW(AppData->window));
@@ -237,7 +289,12 @@ static void activate(GtkApplication *app, gpointer user_data){
     AppData->usrPath = getUserPath();
     AppData->mcPath = AppData->usrPath + "\\AppData\\Roaming\\.minecraft";
     if(::DEBUG) std::cout << "mcPath: " << AppData->mcPath << std::endl;
+
+    AppData->defaultFile = g_file_new_for_path(AppData->mcPath.c_str());
+    if(::DEBUG) g_print("G mc File: %s\n", g_file_get_path(AppData->defaultFile));
  }
+
+ //#######################################################################################
 
 
 int main (int argc, char **argv){
