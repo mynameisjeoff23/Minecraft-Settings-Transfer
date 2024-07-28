@@ -1,0 +1,14 @@
+# ninja log v6
+4	209	7438491199319568	build.ninja	b32259716a6820d4
+20	2095	7435854482754267	CMakeFiles/SettingsTransfer.dir/SettingsTransfer.cpp.obj	daaf309199aa0987
+2098	2218	7435854503557755	SettingsTransfer.exe	ea12ee07b3794878
+10	3026	7438497033927721	CMakeFiles/SettingsTransfer.dir/SettingsTransfer.cpp.obj	daaf309199aa0987
+3030	3346	7438497064132943	SettingsTransfer.exe	b9af768d527bc4bb
+21	3003	7438500050932194	CMakeFiles/SettingsTransfer.dir/SettingsTransfer.cpp.obj	daaf309199aa0987
+3007	3127	7438500080796874	SettingsTransfer.exe	b9af768d527bc4bb
+21	3292	7438500749730169	CMakeFiles/SettingsTransfer.dir/SettingsTransfer.cpp.obj	daaf309199aa0987
+3295	3414	7438500782476967	SettingsTransfer.exe	b9af768d527bc4bb
+30	3170	7438506415394960	CMakeFiles/SettingsTransfer.dir/SettingsTransfer.cpp.obj	daaf309199aa0987
+3174	3297	7438506446850230	SettingsTransfer.exe	b9af768d527bc4bb
+19	3061	7438506968179581	CMakeFiles/SettingsTransfer.dir/SettingsTransfer.cpp.obj	daaf309199aa0987
+3064	3196	7438506998639580	SettingsTransfer.exe	b9af768d527bc4bb

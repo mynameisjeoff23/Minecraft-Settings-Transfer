@@ -1,0 +1,3 @@
+D:/cscripts/c originals/Minecraft Settings Transfer/Minecraft-Settings-Transfer/SettingsTransfer/CMakeFiles/SettingsTransfer.dir
+D:/cscripts/c originals/Minecraft Settings Transfer/Minecraft-Settings-Transfer/SettingsTransfer/CMakeFiles/edit_cache.dir
+D:/cscripts/c originals/Minecraft Settings Transfer/Minecraft-Settings-Transfer/SettingsTransfer/CMakeFiles/rebuild_cache.dir
