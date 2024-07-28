@@ -148,7 +148,7 @@ gboolean updateWidgets(gpointer user_data){
         AppData->textX = (AppData->newScreenWidth * .5) - (.5 * AppData->textW);
         AppData->textY = (AppData->newScreenHeight * .4) - (.5 * AppData->textH);
         if(!AppData->started){
-        gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->view, AppData->textX, AppData->textY);
+            gtk_fixed_put(GTK_FIXED(AppData->fixed), AppData->view, AppData->textX, AppData->textY);
         AppData->started = true;
         } else gtk_fixed_move(GTK_FIXED(AppData->fixed), AppData->view, AppData->textX, AppData->textY);
         gtk_widget_set_size_request(AppData->view, AppData->textW, AppData->textH);
@@ -204,6 +204,7 @@ static void activate(GtkApplication *app, gpointer user_data){
     gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(AppData->view), FALSE);
     gtk_text_buffer_set_text(AppData->buffer, ::PROMPT1, -1);
     gtk_text_view_set_justification(GTK_TEXT_VIEW(AppData->view), GTK_JUSTIFY_CENTER);
+    gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(AppData->view), GTK_WRAP_WORD);
 
     //change textview font and color
     provider = gtk_css_provider_new();
