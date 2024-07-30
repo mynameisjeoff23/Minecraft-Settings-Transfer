@@ -5,6 +5,7 @@
 #include <ShlObj.h>
 #include <locale>
 #include <codecvt>
+#include <fstream>
 
 bool DEBUG = true;
 
@@ -112,6 +113,34 @@ void open_file_dialog(GObject* source_object, GAsyncResult *res, gpointer user_d
 
 //#######################################################################################
 
+void mergeFiles(appdata *AppData){
+
+    std::string input1Str;
+    std::string input2Str;
+
+    int linesFile1, linesFile2;
+
+    std::ifstream input1{AppData->file1, std::ios::in};
+    std::ifstream input2{AppData->file2, std::ios::in};
+
+    if(input1){
+        while(input1 >> input1Str){
+            std::cout << input1Str << "\nThis next one is different:\n";
+            linesFile1++;
+        }
+        if(::DEBUG) std::cout << "Lines in file1:" << linesFile1 << "\n";
+    }
+
+    if(input2){
+        while(input2 >> input2Str){
+            linesFile2++;
+        }
+        if(::DEBUG) std::cout << "Lines in file2:" << linesFile2 << "\n" << std::endl;
+    }
+}
+
+//#######################################################################################
+
 static void onButtonPress(GtkWidget *widget, gpointer user_data) {
 
     appdata *AppData = static_cast<appdata*>(user_data);
@@ -132,10 +161,7 @@ static void onButtonPress(GtkWidget *widget, gpointer user_data) {
 
     if(AppData->counter == 3) {
         if(::DEBUG) g_print("yay 3\n");
-        
-        
-        
-
+        mergeFiles(AppData);
     }
 }
 
@@ -264,7 +290,6 @@ static void activate(GtkApplication *app, gpointer user_data){
     gtk_style_context_add_provider(context,
                                 GTK_STYLE_PROVIDER (provider),
                                 GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-
 
     //create the next button and label
     if(::DEBUG) g_print("before next button\n");
