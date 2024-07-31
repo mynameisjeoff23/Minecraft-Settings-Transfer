@@ -6,6 +6,7 @@
 #include <locale>
 #include <codecvt>
 #include <fstream>
+#include <vector>
 
 bool DEBUG = true;
 
@@ -53,7 +54,6 @@ void wrongFile(appdata *AppData){
 
 void open_file_dialog(GObject* source_object, GAsyncResult *res, gpointer user_data) {
 
-    //why didnt I do this in python?
     appdata *AppData = static_cast<appdata*>(user_data);
 
     if(::DEBUG) g_print("file successfully selected\n");
@@ -113,30 +113,56 @@ void open_file_dialog(GObject* source_object, GAsyncResult *res, gpointer user_d
 
 //#######################################################################################
 
+int count(std::ifstream &input){
+    std::string ctrstr;
+    int ctr = 0;
+
+    if(input){
+        while(input >> ctrstr){
+            std::cout << ctrstr << "\nThis next one is different:\n";
+            ctr++;
+        }
+        if(::DEBUG) std::cout << "Lines in file:" << ctr << "\n";
+    }
+
+    return ctr;
+}
+
+//#######################################################################################
+
 void mergeFiles(appdata *AppData){
 
-    std::string input1Str;
-    std::string input2Str;
-
-    int linesFile1, linesFile2;
+    std::string tempstr;
+    int i;
 
     std::ifstream input1{AppData->file1, std::ios::in};
     std::ifstream input2{AppData->file2, std::ios::in};
 
-    if(input1){
-        while(input1 >> input1Str){
-            std::cout << input1Str << "\nThis next one is different:\n";
-            linesFile1++;
-        }
-        if(::DEBUG) std::cout << "Lines in file1:" << linesFile1 << "\n";
+    const int LEN1{count(input1)};
+    const int LEN2{count(input2)};
+
+    std::vector<std::vector<std::string>> file1(LEN1, std::vector<std::string>(2));
+    std::vector<std::vector<std::string>> file2(LEN2, std::vector<std::string>(2));
+
+    for(i = 0; input1 >> tempstr; i++){
+        
+        int colonAt = tempstr.find_first_of(':');
+
+        file1.at(i).at(0) = tempstr.substr(0, colonAt);
+        file1.at(i).at(1) = tempstr.substr(colonAt + 1);
     }
 
-    if(input2){
-        while(input2 >> input2Str){
-            linesFile2++;
-        }
-        if(::DEBUG) std::cout << "Lines in file2:" << linesFile2 << "\n" << std::endl;
+    if(::DEBUG) std::cout << "First item in vector file1: " << file1.front().front() << std::endl;
+
+    for(i = 0; input2 >> tempstr; i++){
+        
+        int colonAt = tempstr.find_first_of(':');
+
+        file2.at(i).at(0) = tempstr.substr(0, colonAt);
+        file2.at(i).at(1) = tempstr.substr(colonAt + 1);
     }
+    
+    if(::DEBUG) std::cout << "First item in vector file2: " << file2.front().front() << std::endl;
 }
 
 //#######################################################################################
