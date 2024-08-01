@@ -118,8 +118,8 @@ int count(std::ifstream &input){
     int ctr = 0;
 
     if(input){
-        while(input >> ctrstr){
-            std::cout << ctrstr << "\nThis next one is different:\n";
+        while(std::getline(input, ctrstr)){
+            if(::DEBUG) std::cout << ctrstr << "\nThis next one is different:\n";
             ctr++;
         }
         if(::DEBUG) std::cout << "Lines in file:" << ctr << "\n";
@@ -133,7 +133,7 @@ int count(std::ifstream &input){
 void mergeFiles(appdata *AppData){
 
     std::string tempstr;
-    int i;
+    int i, colonAt;
 
     std::ifstream input1{AppData->file1, std::ios::in};
     std::ifstream input2{AppData->file2, std::ios::in};
@@ -144,25 +144,76 @@ void mergeFiles(appdata *AppData){
     std::vector<std::vector<std::string>> file1(LEN1, std::vector<std::string>(2));
     std::vector<std::vector<std::string>> file2(LEN2, std::vector<std::string>(2));
 
-    for(i = 0; input1 >> tempstr; i++){
+    input1.clear();
+    input1.seekg(0, std::ios::beg);
+    input2.clear();
+    input2.seekg(0, std::ios::beg);
+
+    if(input1){
         
-        int colonAt = tempstr.find_first_of(':');
+        if(::DEBUG) g_print("input1 valid\n");
 
-        file1.at(i).at(0) = tempstr.substr(0, colonAt);
-        file1.at(i).at(1) = tempstr.substr(colonAt + 1);
+        for(i = 0; std::getline(input1, tempstr); i++){
+            
+            if(tempstr.ends_with("\n")) tempstr.pop_back();
+            colonAt = tempstr.find_first_of(':');
+            if(::DEBUG) std::cout << 'i';
+
+            file1.at(i).at(0) = tempstr.substr(0, colonAt);
+            file1.at(i).at(1) = tempstr.substr(colonAt + 1);
+        }
+
+        if(::DEBUG) std::cout << "\nFirst item in vector file1: " << file1.at(0).at(0) << std::endl;
+
+        if(input2){
+        for(i = 0; std::getline(input2, tempstr) ; i++){
+            
+            if(tempstr.ends_with("\n")) tempstr.pop_back();
+            colonAt = tempstr.find_first_of(':');
+            
+            file2.at(i).at(0) = tempstr.substr(0, colonAt);
+            file2.at(i).at(1) = tempstr.substr(colonAt + 1);
+            if(::DEBUG) std::cout << i << ':' <<  file2.at(i).at(0) << " & " << file2.at(i).at(1) << std::endl;
+        }
+
+            if(::DEBUG) std::cout << "\nFirst item in vector file2: " << file2.at(0).at(0) << std::endl;
+
+            if(::DEBUG){
+                
+                for(auto& x: file1){
+                    for(const std::string y: x){
+                        std::cout << y << ':';
+                    }
+                    std::cout << std::endl;
+                }
+            }
+
+            std::string version = "version";
+
+            if(::DEBUG) std::cout << "\nCommence Stitching\n" << "File1 Version: " << file1.front().back()\
+            << "\n" << "File2 Version: " << file2.front().back() <<std::endl;
+
+
+            for(auto& x : file1){
+                for(auto& y: file2){
+                    if(x.at(0) == y.at(0)){
+                        if (x.at(0) == version) continue;
+                        else y.at(1) = x.at(1);
+                                                    
+                    }            
+                }
+            }
+            if(::DEBUG){
+                for(auto& x : file2){
+                    if(::DEBUG) std::cout <<  x.at(0) << " & " << x.at(1) << std::endl;
+                }
+            }
+            std::ofstream output{AppData->file2, std::ios::out};
+            for(auto& x : file2){
+                output << x.at(0) + ":" + x.at(1) << "\n";
+            }
+        }
     }
-
-    if(::DEBUG) std::cout << "First item in vector file1: " << file1.front().front() << std::endl;
-
-    for(i = 0; input2 >> tempstr; i++){
-        
-        int colonAt = tempstr.find_first_of(':');
-
-        file2.at(i).at(0) = tempstr.substr(0, colonAt);
-        file2.at(i).at(1) = tempstr.substr(colonAt + 1);
-    }
-    
-    if(::DEBUG) std::cout << "First item in vector file2: " << file2.front().front() << std::endl;
 }
 
 //#######################################################################################
@@ -182,7 +233,6 @@ static void onButtonPress(GtkWidget *widget, gpointer user_data) {
     if(AppData->counter == 2) {
         if(::DEBUG) g_print("option 2\n");       
         gtk_file_dialog_open(AppData->fileDialog, GTK_WINDOW(AppData->window), NULL, open_file_dialog, user_data);
-        
     }
 
     if(AppData->counter == 3) {
