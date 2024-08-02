@@ -8,7 +8,7 @@
 #include <fstream>
 #include <vector>
 
-bool DEBUG = true;
+bool DEBUG = false;
 
 /*this is the version of SettingsTransfer that attempts to use a struct instead of a class*/
 const char *PROMPT1 = "STEP 1: To get started, select the \"options.txt\" file of the old minecraft version you \
@@ -20,6 +20,7 @@ version at least once. ";
 
 const char *PROMPT3 = "STEP 3: Transfer Settings!";
 
+const char *PROMPT4 = "Done!";
 
 struct appdata{
     GtkApplication* app;
@@ -33,7 +34,7 @@ struct appdata{
     int counter{1}, screenWidth, screenHeight, newScreenWidth, newScreenHeight, \
     nextButtonWidth, nextButtonHeight, textW, textH, backButtonW, backButtonH;
     double nextButtonX, nextButtonY, textX, textY, backButtonX, backbuttonY;
-    bool started = false;
+    bool started{false}, successful{false}, mergePressed{false};
 
     std::string file1{""};
     std::string file2{""};
@@ -132,6 +133,8 @@ int count(std::ifstream &input){
 
 void mergeFiles(appdata *AppData){
 
+    
+
     std::string tempstr;
     int i, colonAt;
 
@@ -212,8 +215,9 @@ void mergeFiles(appdata *AppData){
             for(auto& x : file2){
                 output << x.at(0) + ":" + x.at(1) << "\n";
             }
+            AppData->successful = true;
         }
-    }
+    } 
 }
 
 //#######################################################################################
@@ -228,16 +232,33 @@ static void onButtonPress(GtkWidget *widget, gpointer user_data) {
     if(AppData->counter == 1) {
         if(::DEBUG) g_print("option 1\n");
         gtk_file_dialog_open(AppData->fileDialog, GTK_WINDOW(AppData->window), NULL, open_file_dialog, user_data);
-    }
 
-    if(AppData->counter == 2) {
+    } else if(AppData->counter == 2) {
         if(::DEBUG) g_print("option 2\n");       
         gtk_file_dialog_open(AppData->fileDialog, GTK_WINDOW(AppData->window), NULL, open_file_dialog, user_data);
-    }
 
-    if(AppData->counter == 3) {
+    } else if(AppData->counter == 3) {
         if(::DEBUG) g_print("yay 3\n");
-        mergeFiles(AppData);
+
+        if(!AppData->mergePressed){
+            AppData->mergePressed = true;
+            gtk_widget_set_visible(AppData->nextButton, FALSE);
+            mergeFiles(AppData);
+
+            if(AppData->successful){
+            AppData->counter++;
+            gtk_text_buffer_set_text(AppData->buffer, ::PROMPT4, -1);
+            gtk_widget_set_visible(AppData->backButton, FALSE);
+            gtk_label_set_label(GTK_LABEL(AppData->nextLabel), "Done");
+            }
+
+            gtk_widget_set_visible(AppData->nextButton, TRUE);
+        }
+
+        
+    } else if(AppData->counter == 4) {
+        if(::DEBUG) g_print("button was pressed when 4?\n");
+        g_application_quit(G_APPLICATION(AppData->app));
     }
 }
 
