@@ -308,7 +308,7 @@ gboolean updateWidgets(gpointer user_data){
         } else gtk_fixed_move(GTK_FIXED(AppData->fixed), AppData->backButton, AppData->backButtonX, AppData->backbuttonY);
         gtk_widget_set_size_request(AppData->backButton, AppData->backButtonW, AppData->backButtonH);                 
 
-        AppData->textW = .9 * AppData->newScreenWidth;
+        AppData->textW = .8 * AppData->newScreenWidth;
         AppData->textH = .15 * AppData->newScreenHeight;
         AppData->textX = (AppData->newScreenWidth * .5) - (.5 * AppData->textW);
         AppData->textY = (AppData->newScreenHeight * .4) - (.5 * AppData->textH);
@@ -406,7 +406,7 @@ static void activate(GtkApplication *app, gpointer user_data){
     
     if(::DEBUG) g_print("before presenting window\n");
     gtk_window_present(GTK_WINDOW(AppData->window));
-    g_timeout_add(30, updateWidgets, user_data);
+    g_timeout_add(10, updateWidgets, user_data);
 
     AppData->usrPath = getUserPath();
     AppData->mcPath = AppData->usrPath + "\\AppData\\Roaming\\.minecraft";
