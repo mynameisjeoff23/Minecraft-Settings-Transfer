@@ -428,7 +428,7 @@ int main (int argc, char **argv){
     int status;
     if(::DEBUG) g_print("before new app\n");
     
-    AppData.app = gtk_application_new("org.gtk.example", G_APPLICATION_DEFAULT_FLAGS);
+    AppData.app = gtk_application_new("com.github.mynameisjeoff23.SettingsTransfer", G_APPLICATION_DEFAULT_FLAGS);
     if(::DEBUG) g_print("new app successful\n");
     g_signal_connect(AppData.app, "activate", G_CALLBACK (activate), AppDataPtr);
     if(::DEBUG) g_print("main runs\n");
