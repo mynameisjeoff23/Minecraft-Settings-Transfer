@@ -377,7 +377,6 @@ static void activate(GtkApplication *app, gpointer user_data){
 
     //change textview font and color
     provider = gtk_css_provider_new();
-    //use gtk_css_provider_load_from_string
     gtk_css_provider_load_from_string(provider,
                                  "textview {"
                                  " font: 25px serif;"
@@ -413,6 +412,7 @@ static void activate(GtkApplication *app, gpointer user_data){
     if(::DEBUG) std::cout << "mcPath: " << AppData->mcPath << std::endl;
 
     AppData->defaultFile = g_file_new_for_path(AppData->mcPath.c_str());
+    //TODO: use g_file_query_exists to validate file path
     if(::DEBUG) g_print("G mc File: %s\n", g_file_get_path(AppData->defaultFile));
  }
 
