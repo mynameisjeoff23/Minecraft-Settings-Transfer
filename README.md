@@ -1,4 +1,4 @@
-Still under construction. If you know how to package dependencies into an executable with CMake, please reach out. 
+exe doesn't work, you'll have to compile it yourself
 
 This program makes it so you dont have to set your keybinds (among other things) every time you make a new version of minecraft.
 
@@ -10,5 +10,4 @@ This is a gui program that guides you through the process of transfering your se
 
   Warning: this program is built for windows
   
-  Warning: the executable might not run even if on windows. If it doesn't, I dont know how to make it compatible.
   
